@@ -26,6 +26,14 @@ module LanguagePack
         max_attempts: 3
     end
 
+    def fetch_untar_custom(path, files_to_extract = nil)
+      print "Hello, #{files_to_extract}"
+      curl = curl_command("#{@host_url.join(path)} -s -o")
+      run! "#{curl} - | tar xvfJ - #{files_to_extract}",
+        error_class: FetchError,
+        max_attempts: 3
+    end
+
     def fetch_bunzip2(path, files_to_extract = nil)
       curl = curl_command("#{@host_url.join(path)} -s -o")
       run!("#{curl} - | tar jxf - #{files_to_extract}", error_class: FetchError)
@@ -33,7 +41,7 @@ module LanguagePack
 
     private
     def curl_command(command)
-      "set -o pipefail; curl -L --fail --retry 5 --retry-delay 1 --connect-timeout #{curl_connect_timeout_in_seconds} --max-time #{curl_timeout_in_seconds} #{command}"
+      "set -o pipefail; curl -k -L --fail --retry 5 --retry-delay 1 --connect-timeout #{curl_connect_timeout_in_seconds} --max-time #{curl_timeout_in_seconds} #{command}"
     end
 
     def curl_timeout_in_seconds
